@@ -1,0 +1,91 @@
+/* nand2tetris HDL Parser
+ * Copyright (C) 2021 Uri Shaked
+ * Released under the terms of the MIT license.
+ */
+
+Program
+  = _ Chip __ name:Identifier _ '{' 
+      _ definitions:( _ @Interface _ ';' ) + 
+      _ parts:PartList ? _ 
+    '}' _ {
+  	return { name, definitions, parts }
+  }
+  
+Interface 
+  = _ type:(In / Out) __ pins:PinList _ { return { type, pins } } 
+  / _ type:Builtin __ name:Identifier _  { return { type, name } } 
+  / _ type:Clocked __ pins:IdentifierList _ { return { type, pins } }
+
+PartList = Parts _ ':' parts:( _ @PartDeclaration _ ';' ) + { return parts }
+ 
+PartDeclaration = name:Identifier _ '(' connections:Connections ')' { return { name, connections } }
+
+Connections = _ head:Connection tail:( _ ',' _ @Connection) * { return [head, ...tail] }
+
+Connection 
+  = pin:Identifier bits:( _ @BusSelector )? _ '=' to:PartValue { 
+  	return { from: { pin, bits} , to }
+  } 
+
+PartValue 
+  = True { return { const: 'true' } }
+  / False { return { const: 'false' } }
+  / pin:Identifier bits:( _ @BusSelector )? { return { pin, bits } }
+          
+PinList = head:Pin _ tail:(',' _ @Pin _)* { return [head, ...tail] }
+
+Pin 
+  = name:Identifier _ bits:BusWidth { return { name, bits } } 
+  / name:Identifier { return { name, bits: 1 } }
+
+IdentifierList
+  = head:Identifier tail:(_ ',' _ @Identifier)* { return [head, ...tail] }
+
+Identifier = head:[a-zA-Z] tail:[a-zA-Z0-9]*  { return head + tail.join('') }
+
+BusSelector = BusWidth
+            / '[' _ from:Number _ '..' _ to:Number _ ']' { return { from, to } }
+
+BusWidth = '[' _ number:Number _ ']' { return number }
+ 
+Chip = "CHIP"
+In   = "IN"
+Out  = "OUT"
+Builtin = 'BUILTIN'
+Clocked = 'CLOCKED'
+Parts = "PARTS"
+Semicolon = ';'
+True = 'true'
+False = 'false'
+
+Number "number" 
+  = [0-9]+ { return parseInt(text(), 10) }
+
+SourceCharacter = .
+
+WhiteSpace "whitespace"
+  = "\t"
+  / "\v"
+  / "\f"
+  / " "
+  / "\r"
+  / "\n"
+
+LineTerminator
+  = [\n\r]
+
+Comment "comment"
+  = BlockComment
+  / SingleLineComment
+
+BlockComment
+  = "/*" (!"*/" SourceCharacter)* "*/"
+
+SingleLineComment
+  = "//" (!LineTerminator SourceCharacter)*
+
+_
+  = (WhiteSpace / Comment)* { return null }
+
+__
+  = (WhiteSpace / Comment)* { return null }

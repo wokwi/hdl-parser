@@ -1,0 +1,37 @@
+{
+  "name": "hdl-parser",
+  "version": "1.0.0",
+  "description": "Parser for nand2tetris HDL language",
+  "main": "src/index.js",
+  "typings": "src/index.d.ts",
+  "scripts": {
+    "build": "peggy -o src/index.js src/hdl.peg",
+    "prepare": "npm run build",
+    "test": "check-dts && uvu"
+  },
+  "files": [
+    "src/*.js",
+    "src/*.ts"
+  ],
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/wokwi/hdl-parser.git"
+  },
+  "keywords": [
+    "nand2tetris",
+    "HDL",
+    "PEG",
+    "parser"
+  ],
+  "author": "Uri Shaked",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/wokwi/hdl-parser/issues"
+  },
+  "homepage": "https://github.com/wokwi/hdl-parser#readme",
+  "devDependencies": {
+    "check-dts": "^0.5.6",
+    "peggy": "^1.2.0",
+    "uvu": "^0.5.1"
+  }
+}
