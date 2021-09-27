@@ -30,9 +30,13 @@ export interface IConnectionPin {
   bits: number | null | { from: number; to: number };
 }
 
+export interface IConstantPin {
+  const: 'true' | 'false';
+}
+
 export interface IChipConnection {
   from: IConnectionPin;
-  to: IConnectionPin | 'true' | 'false';
+  to: IConnectionPin | IConstantPin;
 }
 
 export interface IChipPart {
