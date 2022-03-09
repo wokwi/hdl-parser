@@ -75,4 +75,55 @@ test('parse a chip definition with BUILTIN and CLOCKED pins', () => {
   });
 });
 
+test('Issue #1', () => {
+  const hdl = `
+    CHIP Or {
+      IN a, b;
+      OUT out;
+
+      PARTS:
+      Nand (a = nota, b=notb, out=out);
+      Not (in=a, out=nota);
+      Not (in=b, out=notb);
+    }
+  `;
+  assert.equal(parse(hdl), {
+    name: 'Or',
+    definitions: [
+      {
+        type: 'IN',
+        pins: [
+          { name: 'a', bits: 1 },
+          { name: 'b', bits: 1 },
+        ],
+      },
+      { type: 'OUT', pins: [{ name: 'out', bits: 1 }] },
+    ],
+    parts: [
+      {
+        name: 'Nand',
+        connections: [
+          { from: { pin: 'a', bits: null }, to: { pin: 'nota', bits: null } },
+          { from: { pin: 'b', bits: null }, to: { pin: 'notb', bits: null } },
+          { from: { pin: 'out', bits: null }, to: { pin: 'out', bits: null } },
+        ],
+      },
+      {
+        name: 'Not',
+        connections: [
+          { from: { pin: 'in', bits: null }, to: { pin: 'a', bits: null } },
+          { from: { pin: 'out', bits: null }, to: { pin: 'nota', bits: null } },
+        ],
+      },
+      {
+        name: 'Not',
+        connections: [
+          { from: { pin: 'in', bits: null }, to: { pin: 'b', bits: null } },
+          { from: { pin: 'out', bits: null }, to: { pin: 'notb', bits: null } },
+        ],
+      },
+    ],
+  });
+});
+
 test.run();

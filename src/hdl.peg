@@ -23,7 +23,7 @@ PartDeclaration = name:Identifier _ '(' connections:Connections ')' { return { n
 Connections = _ head:Connection tail:( _ ',' _ @Connection) * { return [head, ...tail] }
 
 Connection 
-  = pin:Identifier bits:( _ @BusSelector )? _ '=' to:PartValue { 
+  = pin:Identifier bits:( _ @BusSelector )? _ '=' _ to:PartValue { 
   	return { from: { pin, bits} , to }
   } 
 
